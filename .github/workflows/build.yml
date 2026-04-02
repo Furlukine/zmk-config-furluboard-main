@@ -9,13 +9,13 @@ jobs:
       - name: Checkout zmk-config
         uses: actions/checkout@v3
         with:
-          path: main-repo
+          path: src
 
       - name: Checkout FurluBoard module
         uses: actions/checkout@v3
         with:
           repository: Furlukine/zmk-config-furluboard
-          path: main-repo/furluboard-module
+          path: src/furluboard-module
           ref: main
 
       - name: Install dependencies
@@ -24,17 +24,18 @@ jobs:
           sudo apt install -y cmake ninja-build gperf python3-pip python3-setuptools python3-wheel
           pip3 install west
 
-      - name: Initialize west
-        working-directory: ${{ github.workspace }}/main-repo
+      - name: Initialize west workspace
         run: |
-          west init -l config
+          mkdir build-workspace
+          cd build-workspace
+          west init -l ../src/config
           west update
 
       - name: Build firmware
-        working-directory: ${{ github.workspace }}/main-repo
         run: |
+          cd build-workspace
           west build -s zmk/app -b nice_nano_v2 -- \
             -DSHIELD=FurluBoard \
-            -DZMK_EXTRA_MODULES=${{ github.workspace }}/main-repo/furluboard-module \
+            -DZMK_EXTRA_MODULES=${{ github.workspace }}/src/furluboard-module \
             -DCONFIG_ZMK_STUDIO=y \
             -DSNIPPET=studio-rpc-usb-uart
