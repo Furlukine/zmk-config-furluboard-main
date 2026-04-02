@@ -23,11 +23,13 @@ jobs:
           pip3 install west
 
       - name: Initialize west
+        working-directory: ${{ github.workspace }}
         run: |
           west init -l config
           west update
-
+      
       - name: Build firmware
+        working-directory: ${{ github.workspace }}
         run: |
           west build -s zmk/app -b nice_nano_v2 -- \
             -DSHIELD=FurluBoard \
