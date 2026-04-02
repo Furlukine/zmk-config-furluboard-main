@@ -27,6 +27,7 @@ jobs:
       - name: Initialize west
         working-directory: ${{ github.workspace }}/src
         run: |
+          rm -rf .west
           west init -l config
           west update
 
