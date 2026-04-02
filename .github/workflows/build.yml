@@ -1,0 +1,36 @@
+name: Build ZMK firmware
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout zmk-config
+        uses: actions/checkout@v3
+
+      - name: Checkout FurluBoard module
+        uses: actions/checkout@v3
+        with:
+          repository: Furlukine/zmk-config-furluboard
+          path: furluboard-module
+          ref: main
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake ninja-build gperf python3-pip python3-setuptools python3-wheel
+          pip3 install west
+
+      - name: Initialize west
+        run: |
+          west init -l config
+          west update
+
+      - name: Build firmware
+        run: |
+          west build -s zmk/app -b nice_nano_v2 -- \
+            -DSHIELD=FurluBoard \
+            -DZMK_EXTRA_MODULES=${{ github.workspace }}/furluboard-module \
+            -DCONFIG_ZMK_STUDIO=y \
+            -DSNIPPET=studio-rpc-usb-uart
